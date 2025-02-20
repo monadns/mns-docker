@@ -1,0 +1,14 @@
+postgres/data
+ipfs/data
+nginx/data
+graph_node/data
+pgadmin/data
+mysql
+wp-content
+wordpress
+
+.env
+.env.prod
+.env.production
+.env.test
+.env.local
