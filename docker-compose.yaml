@@ -65,11 +65,9 @@ services:
     image: 'nginx:latest'
     restart: always
     depends_on:
-      - graph_node
       - wordpress
       - metadata
       - phpmyadmin
-      - pgadmin
     networks:
       - mns
     ports:
