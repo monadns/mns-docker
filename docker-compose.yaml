@@ -1,30 +1,5 @@
 version: '3'
 services:
-  ipfs:
-    container_name: ipfs
-    image: ipfs/go-ipfs
-    networks:
-      - mns
-    ports:
-      - '5001'
-    volumes:
-      - './ipfs/data:/data/ipfs'
-  postgres:
-    container_name: postgres
-    image: postgres
-    restart: always
-    networks:
-      - mns
-    ports:
-      - 5432
-    volumes:
-      - ./postgres/data:/var/lib/postgresql/data
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
   mysql:
     image: mariadb:latest
     container_name: mysql
@@ -38,43 +13,6 @@ services:
     restart: always
     networks:
       - mns
-  graph_node:
-    container_name: graph_node
-    image: 'graphprotocol/graph-node:latest'
-    networks:
-      - mns
-    ports:
-      - '9000'
-      - '9001'
-      - '9020'
-      - '9030'
-      - '9040'
-    depends_on:
-      - ipfs
-      - postgres
-    extra_hosts:
-      - '172.21.0.1:host-gateway'
-    environment:
-      postgres_pass: ${POSTGRES_PASSWORD}
-      postgres_user: ${POSTGRES_USER}
-      postgres_host: ${POSTGRES_HOST}
-      postgres_db: ${POSTGRES_DB}
-      ethereum: ${ETHEREUM}
-      ipfs: ${IPFS}
-      GRAPH_LOG: ${GRAPH_LOG}
-      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: ${GRAPH_ALLOW_NON_DETERMINISTIC_IPFS}
-      GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH: ${GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH}
-      GRAPH_POI_ACCESS_TOKEN: ${GRAPH_POI_ACCESS_TOKEN}
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    ports:
-        - 16543:80
-    networks:
-      - mns 
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
   metadata:
     container_name: metadata
     build: https://github.com/monadns/mns-metadata-service.git
@@ -84,10 +22,25 @@ services:
       - mns
     restart: always
     environment:
-      NODE_PROVIDER_URL: ${NODE_PROVIDER_URL}
-      GRAPH_API_URL: ${GRAPH_API_URL}
-      ADDRESS_ETH_REGISTRY: ${ADDRESS_ETH_REGISTRY}
-      ADDRESS_ETH_REGISTRAR: ${ADDRESS_ETH_REGISTRAR}
+      NODE_PROVIDER_URL: ${METADATA_NODE_PROVIDER_URL}
+      GRAPH_API_URL: ${METADATA_GRAPH_API_URL}
+      ADDRESS_ETH_REGISTRY: ${METADATA_ADDRESS_ETH_REGISTRY}
+      ADDRESS_ETH_REGISTRAR: ${METADATA_ADDRESS_ETH_REGISTRAR}
+  api:
+    container_name: api
+    build: https://github.com/monadns/mns-api.git
+    ports:
+      - '3000:3000'
+    networks:
+      - mns
+    restart: always
+    environment:
+      PORT: ${API_PORT}
+      NODE_ENV: ${API_NODE_ENV}
+      OG_DEFAULT_IMAGE_URL: ${API_OG_DEFAULT_IMAGE_URL}
+      OG_IMAGE_URL: ${API_OG_IMAGE_URL} 
+    volumes:
+      - './dist/:/usr/local/app/dist'
   wordpress:
     image: wordpress:latest
     container_name: wordpress
@@ -127,11 +80,10 @@ services:
     image: 'nginx:latest'
     restart: always
     depends_on:
-      - graph_node
       - wordpress
       - metadata
       - phpmyadmin
-      - pgadmin
+      - api
     networks:
       - mns
     ports:
