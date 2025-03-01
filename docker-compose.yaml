@@ -26,6 +26,8 @@ services:
       GRAPH_API_URL: ${METADATA_GRAPH_API_URL}
       ADDRESS_ETH_REGISTRY: ${METADATA_ADDRESS_ETH_REGISTRY}
       ADDRESS_ETH_REGISTRAR: ${METADATA_ADDRESS_ETH_REGISTRAR}
+    volumes:
+      - './assets/font:/usr/share/fonts/truetype'
   api:
     container_name: api
     build: https://github.com/monadns/mns-api.git
