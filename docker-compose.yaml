@@ -41,6 +41,7 @@ services:
       OG_IMAGE_URL: ${API_OG_IMAGE_URL} 
     volumes:
       - './dist/:/usr/local/app/dist'
+      - './assets/font:/usr/share/fonts/truetype'
   wordpress:
     image: wordpress:latest
     container_name: wordpress
