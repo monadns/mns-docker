@@ -28,6 +28,7 @@ services:
       ADDRESS_ETH_REGISTRAR: ${METADATA_ADDRESS_ETH_REGISTRAR}
     volumes:
       - './assets/font:/usr/share/fonts/truetype'
+      - './assets/font:/usr/local/share/fonts'
   api:
     container_name: api
     build: https://github.com/monadns/mns-api.git
@@ -44,6 +45,7 @@ services:
     volumes:
       - './dist/:/usr/local/app/dist'
       - './assets/font:/usr/share/fonts/truetype'
+      - './assets/font:/usr/local/share/fonts'
   wordpress:
     image: wordpress:latest
     container_name: wordpress
